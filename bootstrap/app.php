@@ -41,10 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
          */
         $middleware->replaceInGroup('web', BaseEncryptCookies::class, EncryptCookies::class);
 
-        /**
-         * Add locale detection middleware to web group
-         */
-        $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
+
     })
     ->withSchedule(function (Schedule $schedule) {
         //

@@ -1,34 +1,34 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace Webkul\Shop\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 
-class SetLocale
+class BrowserLocaleDetection
 {
     /**
      * Handle an incoming request.
-     * 
-     * 这个中间件专门处理首次访问时的浏览器语言检测
-     * 与Bagisto内置的Shop\Http\Middleware\Locale中间件配合使用
+     *
+     * This middleware detects browser language preferences for first-time visitors
+     * and works in conjunction with Bagisto's built-in Locale middleware.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param  \Closure  $next
+     * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
-        // 只在首次访问且没有URL参数指定语言时进行浏览器语言检测
-        if (!session()->has('locale') && !$request->has('locale')) {
+        // Only detect browser language for first-time visitors without locale parameter
+        if (! session()->has('locale') && ! $request->has('locale')) {
             $browserLocale = $this->getBestMatchingLocale($request);
-            
+
             if ($browserLocale) {
-                // 通过重定向添加locale参数，让Bagisto的中间件处理
+                // Redirect with locale parameter to let Bagisto's Locale middleware handle it
                 $url = $request->fullUrl();
                 $separator = strpos($url, '?') !== false ? '&' : '?';
-                
-                return redirect($url . $separator . 'locale=' . $browserLocale);
+
+                return redirect($url.$separator.'locale='.$browserLocale);
             }
         }
 
@@ -36,7 +36,7 @@ class SetLocale
     }
 
     /**
-     * 获取最佳匹配的语言
+     * Get the best matching locale from browser preferences.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return string|null
@@ -49,28 +49,29 @@ class SetLocale
             return null;
         }
 
-        // 获取当前渠道支持的语言
+        // Get supported locales from current channel
         $supportedLocales = $this->getSupportedLocales();
-        
+
         if (empty($supportedLocales)) {
             return null;
         }
 
-        // 解析Accept-Language头，获取所有语言及其权重
+        // Parse Accept-Language header and get all languages with their weights
         $languages = $this->parseAcceptLanguage($acceptLanguage);
 
-        // 按权重排序
+        // Sort by weight (descending)
         arsort($languages);
 
-        // 尝试匹配每个语言
+        // Try to match each language
         foreach ($languages as $lang => $weight) {
-            // 首先尝试完全匹配（如 zh_CN）
+            // First try exact match (e.g., zh_CN)
             if (in_array($lang, $supportedLocales)) {
                 return $lang;
             }
 
-            // 然后尝试语言代码匹配（如 zh 匹配 zh_CN）
+            // Then try language code match (e.g., zh matches zh_CN)
             $matchedLocale = $this->findLocaleByLanguageCode($lang, $supportedLocales);
+
             if ($matchedLocale) {
                 return $matchedLocale;
             }
@@ -80,27 +81,28 @@ class SetLocale
     }
 
     /**
-     * 获取当前渠道支持的语言列表
+     * Get supported locales from current channel.
      *
      * @return array
      */
     private function getSupportedLocales(): array
     {
         try {
-            // 获取当前渠道支持的语言
+            // Get supported locales from current channel
             $channel = core()->getCurrentChannel();
+
             return $channel ? $channel->locales->pluck('code')->toArray() : [];
-        } catch (\Exception $e) {
-            // 如果获取失败，返回默认支持的语言列表
+        } catch (\Exception) {
+            // Fallback to default supported locales if channel is not available
             return [
                 'ar', 'bn', 'ca', 'de', 'en', 'es', 'fa', 'fr', 'he', 'hi_IN',
-                'it', 'ja', 'nl', 'pl', 'pt_BR', 'ru', 'sin', 'tr', 'uk', 'zh_CN'
+                'it', 'ja', 'nl', 'pl', 'pt_BR', 'ru', 'sin', 'tr', 'uk', 'zh_CN',
             ];
         }
     }
 
     /**
-     * 解析Accept-Language头
+     * Parse Accept-Language header.
      *
      * @param  string  $acceptLanguage
      * @return array
@@ -112,7 +114,7 @@ class SetLocale
 
         foreach ($locales as $locale) {
             $locale = trim($locale);
-            
+
             if (strpos($locale, ';q=') !== false) {
                 [$lang, $quality] = explode(';q=', $locale, 2);
                 $quality = (float) $quality;
@@ -122,10 +124,10 @@ class SetLocale
             }
 
             $lang = trim($lang);
-            
-            // 标准化语言代码格式
+
+            // Normalize locale format
             $lang = $this->normalizeLocale($lang);
-            
+
             if ($lang) {
                 $languages[$lang] = $quality;
             }
@@ -135,7 +137,7 @@ class SetLocale
     }
 
     /**
-     * 标准化语言代码格式
+     * Normalize locale format.
      *
      * @param  string  $locale
      * @return string|null
@@ -146,14 +148,15 @@ class SetLocale
             return null;
         }
 
-        // 将连字符替换为下划线
+        // Replace hyphens with underscores
         $locale = str_replace('-', '_', $locale);
 
-        // 处理特殊格式
+        // Handle special formats like zh_CN, pt_BR
         if (strlen($locale) > 2) {
             $parts = explode('_', $locale);
+
             if (count($parts) === 2) {
-                return strtolower($parts[0]) . '_' . strtoupper($parts[1]);
+                return strtolower($parts[0]).'_'.strtoupper($parts[1]);
             }
         }
 
@@ -161,7 +164,7 @@ class SetLocale
     }
 
     /**
-     * 根据语言代码查找匹配的locale
+     * Find locale by language code.
      *
      * @param  string  $languageCode
      * @param  array  $supportedLocales
@@ -173,6 +176,7 @@ class SetLocale
 
         foreach ($supportedLocales as $locale) {
             $localeLanguageCode = strtolower(substr($locale, 0, 2));
+
             if ($localeLanguageCode === $languageCode) {
                 return $locale;
             }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Webkul\Core\Http\Middleware\PreventRequestsDuringMaintenance;
 use Webkul\Shop\Http\Middleware\AuthenticateCustomer;
+use Webkul\Shop\Http\Middleware\BrowserLocaleDetection;
 use Webkul\Shop\Http\Middleware\CacheResponse;
 use Webkul\Shop\Http\Middleware\Currency;
 use Webkul\Shop\Http\Middleware\Locale;
@@ -31,11 +32,13 @@ class ShopServiceProvider extends ServiceProvider
     {
         $router->middlewareGroup('shop', [
             Theme::class,
+            BrowserLocaleDetection::class,
             Locale::class,
             Currency::class,
         ]);
 
         $router->aliasMiddleware('theme', Theme::class);
+        $router->aliasMiddleware('browser.locale', BrowserLocaleDetection::class);
         $router->aliasMiddleware('locale', Locale::class);
         $router->aliasMiddleware('currency', Currency::class);
         $router->aliasMiddleware('cache.response', CacheResponse::class);
