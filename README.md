@@ -120,6 +120,12 @@ With Bagisto, you can easily create use cases for various commerce needs like Ma
 
 Make use of 100+ Bagisto pre-built extensions from [Bagisto Extension Markeptlace](https://bagisto.com/en/extensions/)
 
+# Custom Features & Documentation
+
+This project includes additional custom features and enhancements. Check out the [docs](docs/) directory for detailed documentation:
+
+- 🌍 **[Browser Language Auto-Detection](docs/features/LANGUAGE_DETECTION.md)** - Automatically detect and set user language based on browser preferences
+
 # Community
 
 ![enter image description here](https://raw.githubusercontent.com/bagisto/temp-media/master/community.png)
