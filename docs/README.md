@@ -7,15 +7,27 @@
 ```
 docs/
 ├── README.md                    # 文档索引（本文件）
+├── api/                         # API文档和参考
+├── deployment/                  # 部署指南和配置
+├── development/                 # 开发指南和最佳实践
+│   ├── performance/             # 性能优化指南
+│   │   ├── font-optimization.md      # 字体优化指南
+│   │   └── font-status-report.md     # 字体状态报告
+│   └── tools/                   # 开发工具和脚本
+│       └── font-tools.md        # 字体工具文档
 ├── features/                    # 功能特性文档
 │   └── LANGUAGE_DETECTION.md    # 浏览器语言自动检测功能
-└── ...                         # 未来的其他文档
+└── configuration/               # 配置指南和参考
+    └── fonts.md                 # 字体配置文档
 ```
 
 ## 🚀 功能特性
 
 ### [浏览器语言自动检测](features/LANGUAGE_DETECTION.md)
 为Bagisto添加基于浏览器Accept-Language头的自动语言检测功能，与内置语言切换系统完美集成。
+
+### [字体加载优化](development/performance/font-optimization.md)
+解决Google Fonts加载缓慢问题，提供CDN、本地、混合三种字体加载策略。
 
 **主要特性:**
 - 智能检测首次访问用户的浏览器语言偏好
@@ -27,6 +39,16 @@ docs/
 - 位置: `packages/Webkul/Shop/src/Http/Middleware/BrowserLocaleDetection.php`
 - 集成: Shop包中间件组
 - 兼容: 与Bagisto原生Locale中间件协同工作
+
+## ⚡ 性能优化
+
+### [字体加载优化](development/performance/font-optimization.md)
+解决Google Fonts加载缓慢问题，支持CDN、本地、混合三种策略。
+
+**相关文档:**
+- [字体配置](configuration/fonts.md) - 配置说明
+- [字体工具](development/tools/font-tools.md) - 脚本使用
+- [性能最佳实践](development/performance/best-practices.md) - 优化建议
 
 ---
 

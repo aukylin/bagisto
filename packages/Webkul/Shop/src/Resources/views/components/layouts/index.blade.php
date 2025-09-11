@@ -48,27 +48,38 @@
             href="{{ core()->getCurrentChannel()->favicon_url ?? bagisto_asset('images/favicon.ico') }}"
         />
 
+        <!-- DNS预解析和预连接优化 -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        
         @bagistoVite(['src/Resources/assets/css/app.css', 'src/Resources/assets/js/app.js'])
 
+        <!-- 使用font-display: swap优化字体加载 -->
         <link
             rel="preload"
             href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
             as="style"
+            onload="this.onload=null;this.rel='stylesheet'"
         >
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
-        >
+        <noscript>
+            <link
+                rel="stylesheet"
+                href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+            >
+        </noscript>
 
         <link
             rel="preload"
             href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap"
             as="style"
+            onload="this.onload=null;this.rel='stylesheet'"
         >
-        <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap"
-        >
+        <noscript>
+            <link
+                rel="stylesheet"
+                href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap"
+            >
+        </noscript>
 
         @stack('styles')
 

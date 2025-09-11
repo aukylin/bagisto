@@ -39,15 +39,36 @@
 
     @bagistoVite(['src/Resources/assets/css/app.css', 'src/Resources/assets/js/app.js'])
 
+    <!-- DNS预解析和预连接优化 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- 异步加载字体 -->
     <link
+        rel="preload"
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
+    </noscript>
 
     <link
+        rel="preload"
         href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap"
-        rel="stylesheet"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap"
+            rel="stylesheet"
+        />
+    </noscript>
 
     <link
         rel="preload"

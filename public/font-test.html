@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字体加载测试</title>
+    
+    <!-- 测试不同的字体加载策略 -->
+    
+    <!-- 方案1: CDN加载 (原始方式) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" id="cdn-fonts">
+    
+    <!-- 方案2: 本地字体 -->
+    <link rel="stylesheet" href="/fonts/poppins-local.css" id="local-fonts">
+    <link rel="stylesheet" href="/fonts/dm-serif-display-local.css">
+    <link rel="stylesheet" href="/fonts/inter-local.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .poppins-test {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .dm-serif-test {
+            font-family: 'DM Serif Display', Georgia, serif;
+        }
+        
+        .inter-test {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .system-font {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        .font-weights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .weight-400 { font-weight: 400; }
+        .weight-500 { font-weight: 500; }
+        .weight-600 { font-weight: 600; }
+        .weight-700 { font-weight: 700; }
+        .weight-800 { font-weight: 800; }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .success { background: #d4edda; color: #155724; }
+        .warning { background: #fff3cd; color: #856404; }
+        .error { background: #f8d7da; color: #721c24; }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>字体加载测试页面</h1>
+    
+    <div class="controls">
+        <button onclick="testCDNFonts()">测试CDN字体</button>
+        <button onclick="testLocalFonts()">测试本地字体</button>
+        <button onclick="checkFontStatus()">检查字体状态</button>
+        <button onclick="toggleStrategy()">切换策略</button>
+    </div>
+    
+    <div id="status"></div>
+    
+    <div class="test-section">
+        <h2>Poppins 字体测试</h2>
+        <div class="poppins-test">
+            <p>这是 Poppins 字体的测试文本 - This is Poppins font test text</p>
+            <div class="font-weights">
+                <div class="weight-400">Font Weight 400 (Regular)</div>
+                <div class="weight-500">Font Weight 500 (Medium)</div>
+                <div class="weight-600">Font Weight 600 (SemiBold)</div>
+                <div class="weight-700">Font Weight 700 (Bold)</div>
+                <div class="weight-800">Font Weight 800 (ExtraBold)</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>DM Serif Display 字体测试</h2>
+        <div class="dm-serif-test">
+            <p>这是 DM Serif Display 字体的测试文本 - This is DM Serif Display font test text</p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Inter 字体测试</h2>
+        <div class="inter-test">
+            <p>这是 Inter 字体的测试文本 - This is Inter font test text</p>
+            <div class="font-weights">
+                <div class="weight-400">Font Weight 400 (Regular)</div>
+                <div class="weight-500">Font Weight 500 (Medium)</div>
+                <div class="weight-600">Font Weight 600 (SemiBold)</div>
+                <div class="weight-700">Font Weight 700 (Bold)</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>系统字体对比</h2>
+        <div class="system-font">
+            <p>这是系统字体的测试文本 - This is system font test text</p>
+        </div>
+    </div>
+
+    <script>
+        let currentStrategy = 'cdn';
+        
+        function showStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function testCDNFonts() {
+            showStatus('正在测试CDN字体加载...', 'warning');
+            
+            // 启用CDN字体
+            document.getElementById('cdn-fonts').disabled = false;
+            document.getElementById('local-fonts').disabled = true;
+            
+            // 测试字体加载
+            const testElement = document.createElement('div');
+            testElement.style.fontFamily = 'Poppins, sans-serif';
+            testElement.style.position = 'absolute';
+            testElement.style.visibility = 'hidden';
+            testElement.innerHTML = 'Test';
+            document.body.appendChild(testElement);
+            
+            setTimeout(() => {
+                const computedFont = window.getComputedStyle(testElement).fontFamily;
+                document.body.removeChild(testElement);
+                
+                if (computedFont.includes('Poppins')) {
+                    showStatus('✅ CDN字体加载成功！', 'success');
+                } else {
+                    showStatus('❌ CDN字体加载失败，使用了回退字体', 'error');
+                }
+            }, 2000);
+        }
+        
+        function testLocalFonts() {
+            showStatus('正在测试本地字体...', 'warning');
+            
+            // 启用本地字体
+            document.getElementById('cdn-fonts').disabled = true;
+            document.getElementById('local-fonts').disabled = false;
+            
+            setTimeout(() => {
+                showStatus('✅ 本地字体策略已启用', 'success');
+            }, 1000);
+        }
+        
+        function checkFontStatus() {
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => {
+                    let loadedFonts = [];
+                    document.fonts.forEach(font => {
+                        if (font.status === 'loaded') {
+                            loadedFonts.push(`${font.family} (${font.weight})`);
+                        }
+                    });
+                    
+                    if (loadedFonts.length > 0) {
+                        showStatus(`✅ 已加载字体: ${loadedFonts.join(', ')}`, 'success');
+                    } else {
+                        showStatus('⚠️ 未检测到已加载的自定义字体', 'warning');
+                    }
+                });
+            } else {
+                showStatus('⚠️ 浏览器不支持字体API检测', 'warning');
+            }
+        }
+        
+        function toggleStrategy() {
+            if (currentStrategy === 'cdn') {
+                testLocalFonts();
+                currentStrategy = 'local';
+            } else {
+                testCDNFonts();
+                currentStrategy = 'cdn';
+            }
+        }
+        
+        // 页面加载完成后自动检查
+        window.addEventListener('load', () => {
+            setTimeout(checkFontStatus, 1000);
+        });
+        
+        // 监听字体加载事件
+        if (document.fonts) {
+            document.fonts.addEventListener('loadingdone', (event) => {
+                console.log('字体加载完成:', event);
+            });
+            
+            document.fonts.addEventListener('loadingerror', (event) => {
+                console.error('字体加载失败:', event);
+            });
+        }
+    </script>
+</body>
+</html>
