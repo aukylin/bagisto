@@ -267,7 +267,132 @@
 
     {!! view_render_event('bagisto.shop.products.view.after', ['product' => $product]) !!}
 
+    @pushOnce('styles')
+        <style>
+            /* Mobile Product Page Header Control */
+            @media (max-width: 1023px) {
+                /* Hide the original header on mobile for product pages */
+                body header {
+                    transform: translateY(-100%) !important;
+                    transition: transform 0.3s ease-in-out !important;
+                }
+                
+                /* Show header when needed */
+                body.show-mobile-header header {
+                    transform: translateY(0) !important;
+                }
+                
+                /* Ensure header stays on top */
+                header {
+                    z-index: 9999 !important;
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                }
+            }
+        </style>
+    @endPushOnce
+
     @pushOnce('scripts')
+        <!-- Mobile Header Scroll Control Script -->
+        <script>
+            // Mobile Header Control for Product Page
+            document.addEventListener('DOMContentLoaded', function() {
+                // Only run on mobile devices
+                if (window.innerWidth >= 1024) return;
+                
+                let isHeaderVisible = false;
+                let productTitle = null;
+                
+                // Find product title element
+                function findProductTitle() {
+                    return document.getElementById('product-title') || 
+                           document.querySelector('h1') || 
+                           document.querySelector('[class*="text-3xl"]');
+                }
+                
+                function showHeader() {
+                    document.body.classList.add('show-mobile-header');
+                    isHeaderVisible = true;
+                }
+                
+                function hideHeader() {
+                    document.body.classList.remove('show-mobile-header');
+                    isHeaderVisible = false;
+                }
+                
+                function handleScroll() {
+                    // Try to find product title if not found yet
+                    if (!productTitle) {
+                        productTitle = findProductTitle();
+                    }
+                    
+                    if (!productTitle) {
+                        // Fallback to scroll distance if title not found
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        const shouldShow = scrollTop > window.innerHeight * 0.6;
+                        
+                        if (shouldShow && !isHeaderVisible) {
+                            showHeader();
+                        } else if (!shouldShow && isHeaderVisible) {
+                            hideHeader();
+                        }
+                        return;
+                    }
+                    
+                    // Get product title position
+                    const titleRect = productTitle.getBoundingClientRect();
+                    const titleTop = titleRect.top;
+                    
+                    // Show header when product title is near the top of the screen
+                    // (within 100px of the top)
+                    const shouldShow = titleTop <= 100;
+                    
+                    if (shouldShow && !isHeaderVisible) {
+                        showHeader();
+                    } else if (!shouldShow && isHeaderVisible) {
+                        hideHeader();
+                    }
+                }
+                
+                // Initially hide header
+                hideHeader();
+                
+                // Add scroll listener with throttling
+                let ticking = false;
+                function onScroll() {
+                    if (!ticking) {
+                        requestAnimationFrame(handleScroll);
+                        ticking = true;
+                        setTimeout(() => { ticking = false; }, 16);
+                    }
+                }
+                
+                window.addEventListener('scroll', onScroll, { passive: true });
+                
+                // Handle window resize
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth >= 1024) {
+                        document.body.classList.remove('show-mobile-header');
+                        isHeaderVisible = false;
+                    } else {
+                        handleScroll(); // Re-check current position
+                    }
+                });
+                
+                // Initial check after a delay to ensure elements are rendered
+                setTimeout(function() {
+                    productTitle = findProductTitle();
+                    handleScroll();
+                }, 500);
+                
+                // Additional checks for Vue components
+                setTimeout(handleScroll, 1000);
+                setTimeout(handleScroll, 2000);
+            });
+        </script>
+
         <script
             type="text/x-template"
             id="v-product-template"
@@ -302,7 +427,7 @@
                                 {!! view_render_event('bagisto.shop.products.name.before', ['product' => $product]) !!}
 
                                 <div class="flex justify-between gap-4">
-                                    <h1 class="break-words text-3xl font-medium max-sm:text-xl">
+                                    <h1 id="product-title" class="break-words text-3xl font-medium max-sm:text-xl">
                                         {{ $product->name }}
                                     </h1>
 
